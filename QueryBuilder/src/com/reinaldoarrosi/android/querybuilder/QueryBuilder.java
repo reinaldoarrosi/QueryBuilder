@@ -283,15 +283,12 @@ public class QueryBuilder {
 		// AND REPLACES THEM FOR THE VALUE IN THE GENERATED QUERY STRING
 		List<String> parameters = getParametersCollection();
 		int parametersSize = parameters.size();
-		int index = 0;
 		int charIndex;
 
 		while (parametersSize > 999) {
 			charIndex = sb.lastIndexOf("?");
-			sb.replace(charIndex, charIndex + 1, DatabaseUtils.sqlEscapeString(parameters.get(index)));
-
+			sb.replace(charIndex, charIndex + 1, DatabaseUtils.sqlEscapeString(parameters.get(parametersSize - 1)));
 			parametersSize--;
-			index++;
 		}
 
 		return sb.toString();
