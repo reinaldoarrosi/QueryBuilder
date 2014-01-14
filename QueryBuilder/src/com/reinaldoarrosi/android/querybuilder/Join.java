@@ -3,12 +3,12 @@ package com.reinaldoarrosi.android.querybuilder;
 
 public class Join {
 	public static PartialJoin innerJoin(String leftTable, String rightTable) {
-		PartialJoin join = new PartialJoin(leftTable, rightTable, "INNER JOIN", null);		
+		PartialJoin join = new PartialJoin(leftTable, rightTable, "INNER JOIN");		
 		return join;
 	}
 	
 	public static PartialJoin leftJoin(String leftTable, String rightTable) {
-		PartialJoin join = new PartialJoin(leftTable, rightTable, "LEFT JOIN", null);
+		PartialJoin join = new PartialJoin(leftTable, rightTable, "LEFT JOIN");
 		return join;
 	}
 	
@@ -16,45 +16,24 @@ public class Join {
 	private String rightTable;
 	private String join;
 	private Criteria joinClause;
-	private String[] parameters;
 	
-	Join(String leftTable, String rightTable, String join, Criteria joinClause, String[] parameters) {
+	Join(String leftTable, String rightTable, String join, Criteria joinClause) {
 		this.leftTable = leftTable;
 		this.rightTable = rightTable;
 		this.join = join;
 		this.joinClause = joinClause;
-		
-		parameters = (parameters == null ? new String[0] : parameters);
-		
-		String[] joinParams = joinClause.getParameters();
-		joinParams = (joinParams == null ? new String[0] : joinParams);
-		
-		String[] newParams = new String[parameters.length + joinParams.length];
-		
-		for (int i = 0; i < parameters.length; i++) {
-			newParams[i] = parameters[i];
-		}
-		
-		for (int i = 0; i < joinParams.length; i++) {
-			newParams[i + parameters.length] = joinParams[i];
-		}
-		
-		if(newParams.length == 0)
-			this.parameters = null;
-		else
-			this.parameters = newParams;
 	}
 	
 	public PartialJoin innerJoin(String table) {
 		String actualJoin = this.build();
-		PartialJoin partialJoin = new PartialJoin(actualJoin, table, "INNER JOIN", parameters);
+		PartialJoin partialJoin = new PartialJoin(actualJoin, table, "INNER JOIN");
 		
 		return partialJoin;
 	}
 	
 	public PartialJoin leftJoin(String table) {
 		String actualJoin = this.build();
-		PartialJoin partialJoin = new PartialJoin(actualJoin, table, "LEFT JOIN", parameters);
+		PartialJoin partialJoin = new PartialJoin(actualJoin, table, "LEFT JOIN");
 		
 		return partialJoin;
 	}
@@ -69,13 +48,18 @@ public class Join {
 		return this;
 	}
 	
+	public Join onOr(Criteria criteria) {
+		joinClause = joinClause.and(criteria);
+		return this;
+	}
+	
 	public Join onAnd(Criteria criteria) {
 		joinClause = joinClause.and(criteria);
 		return this;
 	}
 	
 	public String[] getParameters() {
-		return parameters;
+		return joinClause.getParameters();
 	}
 	
 	public String build() {
