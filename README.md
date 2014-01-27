@@ -114,6 +114,21 @@ QueryBuilder assumes that dates are stored in the **yyyy-MM-dd** format, and tha
     SQLiteDatabase db = getDB();
     db.rawQuery(builder.buildQuery(), builder.buildParameters());
     
+### Sub-queries in FROM clause
+	QueryBuilder subQuery = new QueryBuilder();
+    subQuery.from("SubTable");
+	
+    QueryBuilder builder = new QueryBuilder();
+    builder.from(subQuery);
+	
+	// you can also JOIN sub-queries: 
+	// builder.from(Join.innerJoin(subQuery, "Table").on("COL_FROM_SUBQUERY", "COL_FROM_TABLE")
+	// builder.from(Join.innerJoin("Table", subQuery).on("COL_FROM_TABLE", "COL_FROM_SUBQUERY")
+	// builder.from(Join.innerJoin(subQuery1, subQuery2).on("COL_FROM_SUBQUERY1", "COL_FROM_SUBQUERY2")
+        
+    SQLiteDatabase db = getDB();
+    db.rawQuery(builder.buildQuery(), builder.buildParameters());
+	
 ### Union
     
     QueryBuilder builder1 = new QueryBuilder();

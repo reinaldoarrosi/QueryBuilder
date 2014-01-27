@@ -2,7 +2,6 @@ package com.reinaldoarrosi.android.querybuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import android.database.DatabaseUtils;
 
 public class QueryBuilder {
@@ -14,9 +13,10 @@ public class QueryBuilder {
 	private int limit = -1;
 	private int offset = -1;
 	private boolean distinct = false;
-	private ArrayList<String> joinParameters = null;
+	private ArrayList<String> fromParameters = null;
 	private ArrayList<String> selectParameters = null;
 	private ArrayList<QueryBuilder> unions;
+
 	private boolean isUnionAll = false;
 
 	public QueryBuilder() {
@@ -25,7 +25,7 @@ public class QueryBuilder {
 		groupBy = new ArrayList<String>();
 		orderBy = new ArrayList<String>();
 		unions = new ArrayList<QueryBuilder>();
-		joinParameters = new ArrayList<String>();
+		fromParameters = new ArrayList<String>();
 		selectParameters = new ArrayList<String>();
 
 		criterias = null;
@@ -43,37 +43,109 @@ public class QueryBuilder {
 	}
 
 	public QueryBuilder select(String projection) {
+		return select(projection, (String[])null);
+	}
+	
+	public QueryBuilder select(String projection, String[] parameters) {
 		projections.add(projection);
+
+		if(parameters != null) {
+			for (int i = 0; i < parameters.length; i++) {
+				selectParameters.add(parameters[i]);
+			}
+		}
+		
 		return this;
 	}
 
 	public QueryBuilder select(String projection, String alias) {
+		return select(projection, alias, (String[])null);
+	}
+	
+	public QueryBuilder select(String projection, String alias, String[] parameters) {
 		projections.add(projection + " AS " + alias);
+		
+		if(parameters != null) {
+			for (int i = 0; i < parameters.length; i++) {
+				selectParameters.add(parameters[i]);
+			}
+		}
+		
 		return this;
 	}
 
 	public QueryBuilder select(String projection, String alias, String tableAlias) {
+		return select(projection, alias, tableAlias, (String[])null);
+	}
+	
+	public QueryBuilder select(String projection, String alias, String tableAlias, String[] parameters) {
 		if (alias == null || alias.length() == 0)
 			projections.add(tableAlias + "." + projection);
 		else
 			projections.add(tableAlias + "." + projection + " AS " + alias);
+		
+		if(parameters != null) {
+			for (int i = 0; i < parameters.length; i++) {
+				selectParameters.add(parameters[i]);
+			}
+		}
 
 		return this;
 	}
 
 	public QueryBuilder selectDistinct(String projection) {
+		return selectDistinct(projection, (String[])null);
+	}
+	
+	public QueryBuilder selectDistinct(String projection, String[] parameters) {
 		distinct = true;
-		return select(projection);
+		projections.add(projection);
+		
+		if(parameters != null) {
+			for (int i = 0; i < parameters.length; i++) {
+				selectParameters.add(parameters[i]);
+			}
+		}
+		
+		return this;
 	}
 
 	public QueryBuilder selectDistinct(String projection, String alias) {
+		return selectDistinct(projection, alias, (String[])null);
+	}
+	
+	public QueryBuilder selectDistinct(String projection, String alias, String[] parameters) {
 		distinct = true;
-		return select(projection, alias);
+		projections.add(projection + " AS " + alias);
+		
+		if(parameters != null) {
+			for (int i = 0; i < parameters.length; i++) {
+				selectParameters.add(parameters[i]);
+			}
+		}
+		
+		return this;
 	}
 
 	public QueryBuilder selectDistinct(String projection, String alias, String tableAlias) {
+		return selectDistinct(projection, alias, tableAlias, (String[])null);
+	}
+	
+	public QueryBuilder selectDistinct(String projection, String alias, String tableAlias, String[] parameters) {
 		distinct = true;
-		return select(projection, alias, tableAlias);
+
+		if (alias == null || alias.length() == 0)
+			projections.add(tableAlias + "." + projection);
+		else
+			projections.add(tableAlias + "." + projection + " AS " + alias);
+		
+		if(parameters != null) {
+			for (int i = 0; i < parameters.length; i++) {
+				selectParameters.add(parameters[i]);
+			}
+		}
+
+		return this;
 	}
 
 	public QueryBuilder from(String table) {
@@ -93,10 +165,24 @@ public class QueryBuilder {
 
 		if (parameters != null) {
 			for (int i = 0; i < parameters.length; i++) {
-				joinParameters.add(parameters[i]);
+				fromParameters.add(parameters[i]);
 			}
 		}
 
+		return this;
+	}
+	
+	public QueryBuilder from(QueryBuilder subQuery) {
+		tables.add("(" + subQuery.buildQuery() + ")");
+		
+		String[] parameters = subQuery.buildParameters();
+		
+		if (parameters != null) {
+			for (int i = 0; i < parameters.length; i++) {
+				fromParameters.add(parameters[i]);
+			}
+		}
+		
 		return this;
 	}
 
@@ -160,21 +246,11 @@ public class QueryBuilder {
 	}
 
 	public QueryBuilder orderByAscending(String order) {
-		orderBy.add(order + " ASC");
-		return this;
-	}
-	
-	public QueryBuilder orderByAscendingIgnoreCase(String order) {
 		orderBy.add(order + " COLLATE NOCASE ASC");
 		return this;
 	}
 
 	public QueryBuilder orderByDescending(String order) {
-		orderBy.add(order + " DESC");
-		return this;
-	}
-	
-	public QueryBuilder orderByDescendingIgnoreCase(String order) {
 		orderBy.add(order + " COLLATE NOCASE DESC");
 		return this;
 	}
@@ -244,6 +320,15 @@ public class QueryBuilder {
 				sb.append(group);
 			}
 		}
+		
+		for (QueryBuilder union : unions) {
+			if (union.isUnionAll)
+				sb.append(" UNION ALL ");
+			else
+				sb.append(" UNION ");
+
+			sb.append(union.buildQuery());
+		}
 
 		if (orderBy.size() > 0) {
 			sb.append(" ORDER BY ");
@@ -269,18 +354,11 @@ public class QueryBuilder {
 			sb.append(offset);
 		}
 
-		for (QueryBuilder union : unions) {
-			if (union.isUnionAll)
-				sb.append(" UNION ALL ");
-			else
-				sb.append(" UNION ");
-
-			sb.append(union.buildQuery());
-		}
-
-		// SQLITE IN ANDROID ALLOWS ONLY 999 PARAMETER IN A QUERY.
-		// THIS PIECE OF CODE REMOVES PARAMETERS THAT EXCEED THIS LIMIT
-		// AND REPLACES THEM FOR THE VALUE IN THE GENERATED QUERY STRING
+		/************************************************************/
+		/** O SQLITE SÓ PERMITE NO MAX 999 PARAMETROS EM UMA QUERY **/
+		/** O CÓDIGO ABAIXO REMOVE OS PARÂMETROS QUE EXCEDEREM 999 **/
+		/** E OS SUBSTITUI DIRETAMENTE PELO VALOR DO PARÂMETRO **/
+		/************************************************************/
 		List<String> parameters = getParametersCollection();
 		int parametersSize = parameters.size();
 		int charIndex;
@@ -290,6 +368,9 @@ public class QueryBuilder {
 			sb.replace(charIndex, charIndex + 1, DatabaseUtils.sqlEscapeString(parameters.get(parametersSize - 1)));
 			parametersSize--;
 		}
+		/************************************************************/
+		/** FIM DA SUBSTITUIÇÃO DOS PARÂMETROS **/
+		/************************************************************/
 
 		return sb.toString();
 	}
@@ -299,8 +380,8 @@ public class QueryBuilder {
 
 		if (parameters.size() > 0) {
 
-			// Removes some parameters to keep the 
-			// collection within the 999 parameters limit
+			// Se a quantidade de parâmetros ultrapassar 999
+			// remove alguns para ficar dentro do limite do SQLite
 			while (parameters.size() > 999)
 				parameters.remove(parameters.size() - 1);
 
@@ -321,16 +402,13 @@ public class QueryBuilder {
 	}
 
 	private List<String> getParametersCollection() {
-		// Join every parameter needed for the query in a single collection
-		// taking into account the order of the parameters
-		
 		ArrayList<String> parameters = new ArrayList<String>();
 
 		if (selectParameters != null)
 			parameters.addAll(selectParameters);
 
-		if (joinParameters != null)
-			parameters.addAll(joinParameters);
+		if (fromParameters != null)
+			parameters.addAll(fromParameters);
 
 		String[] criteriasParams = (criterias == null ? new String[0] : criterias.getParameters());
 		criteriasParams = (criteriasParams == null ? new String[0] : criteriasParams);
@@ -352,16 +430,17 @@ public class QueryBuilder {
 		return parameters;
 	}
 
-	public String toDebugSqlString() {
+	public String getSqlDebug() {
 		String[] parameters = buildParameters();
-		String sqlString = buildQuery();
+		String saida = buildQuery();
 		
 		if (parameters != null) {
 			for (String par : parameters) {
-				sqlString = sqlString.replaceFirst("\\?", DatabaseUtils.sqlEscapeString(par));
+				if (par == null)
+					par = "##NULLO##";
+				saida = saida.replaceFirst("\\?", DatabaseUtils.sqlEscapeString(par));
 			}
 		}
-		
-		return sqlString;
+		return saida;
 	}
 }
