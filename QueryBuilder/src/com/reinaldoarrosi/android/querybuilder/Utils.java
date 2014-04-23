@@ -7,7 +7,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.reinaldoarrosi.android.querybuilder.core.QueryBuildConfiguration;
+import com.reinaldoarrosi.android.querybuilder.sqlite.QueryBuildConfiguration;
 
 public class Utils {
 	public static final List<Object> EMPTY_LIST = new ArrayList<Object>();
