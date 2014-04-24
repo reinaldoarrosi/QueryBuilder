@@ -1,5 +1,6 @@
 package com.reinaldoarrosi.android.querybuilder;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,10 +9,25 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.reinaldoarrosi.android.querybuilder.sqlite.QueryBuildConfiguration;
+import com.reinaldoarrosi.android.querybuilder.sqlite.projection.Projection;
 
 public class Utils {
 	public static final List<Object> EMPTY_LIST = new ArrayList<Object>();
 
+	public static String toString(Object value) {
+		if (value == null)
+			return null;
+		
+		if (value instanceof String)
+			return (String)value;
+		else if (value instanceof Float)
+			return new BigDecimal((Float) value).stripTrailingZeros().toPlainString();
+		else if (value instanceof Double)
+			return new BigDecimal((Double) value).stripTrailingZeros().toPlainString();
+		else
+			return String.valueOf(value);
+	}
+	
 	public static String dateToString(LocalDate date, DateTimeFormatter format) {
 		if (date == null)
 			return null;
@@ -46,5 +62,14 @@ public class Utils {
 	
 	public static boolean isNullOrWhiteSpace(String string) {
 		return (string == null || string.trim().length() <= 0);
+	}
+	
+	public static Projection[] buildColumnProjections(String... columns) {
+		Projection[] projections = new Projection[columns.length];
+		
+		for (int i = 0; i < columns.length; i++) {
+			projections[i] = Projection.column(columns[i]);
+		}
+		return projections;
 	}
 }

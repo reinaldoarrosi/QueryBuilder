@@ -11,6 +11,8 @@ import org.joda.time.format.DateTimeFormatter;
 import com.reinaldoarrosi.android.querybuilder.Utils;
 import com.reinaldoarrosi.android.querybuilder.sqlite.criteria.Criteria;
 import com.reinaldoarrosi.android.querybuilder.sqlite.from.From;
+import com.reinaldoarrosi.android.querybuilder.sqlite.order.Order;
+import com.reinaldoarrosi.android.querybuilder.sqlite.projection.AliasedProjection;
 import com.reinaldoarrosi.android.querybuilder.sqlite.projection.Projection;
 
 
@@ -19,10 +21,13 @@ public class QueryBuilder {
 	private From from;
 	private Criteria criteria;
 	private List<Projection> groupBy;
-	private List<Projection> orderBy;
+	private List<Order> orderBy;
 	private int skip;
 	private int take;
 	private boolean distinct;
+	
+	private List<QueryBuilder> unionQueries;
+	private boolean unionAll;
 	
 	private DateTimeFormatter dateFormat;
 	private DateTimeFormatter dateTimeFormat;
@@ -40,10 +45,13 @@ public class QueryBuilder {
 		from = null;
 		criteria = null;
 		groupBy = new ArrayList<Projection>();
-		orderBy = new ArrayList<Projection>();
+		orderBy = new ArrayList<Order>();
 		skip = -1;
 		take = -1;
 		distinct = false;
+		
+		unionQueries = new ArrayList<QueryBuilder>();
+		unionAll = false;
 		
 		this.dateFormat = dateFormat;
 		this.dateTimeFormat = dateTimeFormat;
@@ -71,13 +79,7 @@ public class QueryBuilder {
 		if(columns == null)
 			return this;
 		
-		Projection[] projections = new Projection[columns.length];
-		
-		for (int i = 0; i < columns.length; i++) {
-			projections[i] = Projection.column(columns[i]);
-		}
-		
-		return select(projections);
+		return select(Utils.buildColumnProjections(columns));
 	}
 	
 	public QueryBuilder select(Projection... projections) {
@@ -89,6 +91,14 @@ public class QueryBuilder {
 		}
 		
 		return this;
+	}
+	
+	public QueryBuilder from(String table) {
+		return from(From.table(table));
+	}
+	
+	public QueryBuilder from(QueryBuilder subQuery) {
+		return from(From.subQuery(subQuery));
 	}
 	
 	public QueryBuilder from(From from) {
@@ -124,13 +134,7 @@ public class QueryBuilder {
 		if(columns == null)
 			return this;
 		
-		Projection[] projections = new Projection[columns.length];
-		
-		for (int i = 0; i < columns.length; i++) {
-			projections[i] = Projection.column(columns[i]);
-		}
-		
-		return groupBy(projections);
+		return groupBy(Utils.buildColumnProjections(columns));
 	}
 	
 	public QueryBuilder groupBy(Projection... projections) {
@@ -144,27 +148,85 @@ public class QueryBuilder {
 		return this;
 	}
 	
-	public QueryBuilder orderBy(String... columns) {
+	public QueryBuilder clearGroupBy() {
+		this.groupBy.clear();
+		return this;
+	}
+	
+	public QueryBuilder orderByAscending(String... columns) {
 		if(columns == null)
 			return this;
 		
-		Projection[] projections = new Projection[columns.length];
-		
-		for (int i = 0; i < columns.length; i++) {
-			projections[i] = Projection.column(columns[i]);
-		}
-		
-		return orderBy(projections);
+		return orderByAscending(Utils.buildColumnProjections(columns));
 	}
 	
-	public QueryBuilder orderBy(Projection... projections) {
+	public QueryBuilder orderByAscending(Projection... projections) {
 		if(projections == null)
 			return this;
 		
 		for (int i = 0; i < projections.length; i++) {
-			this.orderBy.add(projections[i]);
+			this.orderBy.add(Order.orderByAscending(projections[i]));
 		}
 		
+		return this;
+	}
+	
+	public QueryBuilder orderByDescending(String... columns) {
+		if(columns == null)
+			return this;
+		
+		return orderByDescending(Utils.buildColumnProjections(columns));
+	}
+	
+	public QueryBuilder orderByDescending(Projection... projections) {
+		if(projections == null)
+			return this;
+		
+		for (int i = 0; i < projections.length; i++) {
+			this.orderBy.add(Order.orderByDescending(projections[i]));
+		}
+		
+		return this;
+	}
+	
+	public QueryBuilder orderByAscendingIgnoreCase(String... columns) {
+		if(columns == null)
+			return this;
+		
+		return orderByAscendingIgnoreCase(Utils.buildColumnProjections(columns));
+	}
+	
+	public QueryBuilder orderByAscendingIgnoreCase(Projection... projections) {
+		if(projections == null)
+			return this;
+		
+		for (int i = 0; i < projections.length; i++) {
+			this.orderBy.add(Order.orderByAscendingIgnoreCase(projections[i]));
+		}
+		
+		return this;
+	}
+	
+	public QueryBuilder orderByDescendingIgnoreCase(String... columns) {
+		if(columns == null)
+			return this;
+		
+		return orderByDescendingIgnoreCase(Utils.buildColumnProjections(columns));
+	}
+	
+	public QueryBuilder orderByDescendingIgnoreCase(Projection... projections) {
+		if(projections == null)
+			return this;
+		
+		for (int i = 0; i < projections.length; i++) {
+			this.orderBy.add(Order.orderByDescendingIgnoreCase(projections[i]));
+		}
+		
+		return this;
+	}
+	
+	public QueryBuilder clearOrderBy() {
+		this.orderBy.clear();
 		return this;
 	}
 	
@@ -198,8 +260,124 @@ public class QueryBuilder {
 		return this;
 	}
 	
+	public QueryBuilder union(QueryBuilder query) {
+		query.unionAll = false;		
+		unionQueries.add(query);
+		
+		return this;
+	}
+	
+	public QueryBuilder unionAll(QueryBuilder query) {
+		query.unionAll = true;
+		unionQueries.add(query);
+		
+		return this;
+	}
+	
 	public String build() {
 		StringBuilder sb = new StringBuilder();
+		
+		buildSelectClause(sb);
+		
+		buildFromClause(sb);
+		
+		buildWhereClause(sb);
+		
+		buildGroupByClause(sb);
+		
+		buildUnionClause(sb);
+		
+		buildOrderByClause(sb);
+		
+		buildTakeClause(sb);
+		
+		buildSkipClause(sb);
+		
+		return sb.toString();
+	}
+
+	private void buildSkipClause(StringBuilder sb) {
+		if(skip > 0) {
+			sb.append(" OFFSET ");
+			sb.append(skip);
+		}
+	}
+
+	private void buildTakeClause(StringBuilder sb) {
+		if(take > 0) {
+			sb.append(" LIMIT ");
+			sb.append(take);
+		}
+	}
+
+	private void buildOrderByClause(StringBuilder sb) {
+		if(orderBy.size() > 0) {
+			sb.append(" ORDER BY ");
+			
+			for (Order o : orderBy) {
+				sb.append(o.build());
+				sb.append(", ");
+			}
+			
+			sb.setLength(sb.length() - 2); // removes the ", " from the last entry
+		}
+	}
+
+	private void buildUnionClause(StringBuilder sb) {
+		List<Order> oldOrderBy;
+		int oldSkip;
+		int oldTake;
+		
+		for (QueryBuilder union : unionQueries) {
+			sb.append(union.unionAll ? " UNION ALL " : " UNION ");
+			
+			oldOrderBy = union.orderBy;
+			oldSkip = union.skip;
+			oldTake = union.take;
+			
+			union.orderBy = new ArrayList<Order>();
+			union.skip = -1;
+			union.take = -1;
+			
+			sb.append(union.build());
+			
+			union.orderBy = oldOrderBy;
+			union.skip = oldSkip;
+			union.take = oldTake;
+		}
+	}
+	
+	private void buildGroupByClause(StringBuilder sb) {
+		if(groupBy.size() > 0) {
+			sb.append(" GROUP BY ");
+			
+			for (Projection p : groupBy) {
+				if(p instanceof AliasedProjection)
+					p = ((AliasedProjection)p).removeAlias();
+				
+				sb.append(p.build());
+				sb.append(", ");
+			}
+			
+			sb.setLength(sb.length() - 2); // removes the ", " from the last entry
+		}
+	}
+
+	private void buildWhereClause(StringBuilder sb) {
+		if(criteria != null) {
+			sb.append("WHERE ");
+			sb.append(criteria.build());
+		}
+	}
+
+	private void buildFromClause(StringBuilder sb) {
+		if(from != null) {
+			sb.append(from.build());
+			sb.append(" ");
+		}
+	}
+
+	private void buildSelectClause(StringBuilder sb) {
 		sb.append("SELECT ");
 		
 		if(distinct)
@@ -217,58 +395,15 @@ public class QueryBuilder {
 		}
 		
 		sb.append(" ");
-		
-		if(from != null) {
-			sb.append(from.build());
-			sb.append(" ");
-		}
-		
-		if(criteria != null) {
-			sb.append("WHERE ");
-			sb.append(criteria.build());
-		}
-		
-		if(groupBy.size() > 0) {
-			sb.append(" GROUP BY ");
-			
-			for (Projection p : groupBy) {
-				sb.append(p.build());
-				sb.append(", ");
-			}
-			
-			sb.setLength(sb.length() - 2); // removes the ", " from the last entry
-		}
-		
-		if(orderBy.size() > 0) {
-			sb.append(" ORDER BY ");
-			
-			for (Projection p : orderBy) {
-				sb.append(p.build());
-				sb.append(", ");
-			}
-			
-			sb.setLength(sb.length() - 2); // removes the ", " from the last entry
-		}
-		
-		if(take > 0) {
-			sb.append(" LIMIT ");
-			sb.append(take);
-		}
-		
-		if(skip > 0) {
-			sb.append(" OFFSET ");
-			sb.append(skip);
-		}
-		
-		return sb.toString();
 	}
 	
 	public List<Object> buildParameters() {
 		List<Object> ret = new ArrayList<Object>();
+		List<Order> oldOrderBy;
+		int oldSkip;
+		int oldTake;
 		
-		for (Projection p : projections) {
-			ret.addAll(p.buildParameters());
-		}
+		buildSelectClauseParameters(ret);
 		
 		if(from != null)
 			ret.addAll(from.buildParameters());
@@ -280,12 +415,50 @@ public class QueryBuilder {
 			ret.addAll(p.buildParameters());
 		}
 		
-		for (Projection p : orderBy) {
-			ret.addAll(p.buildParameters());
+		for (QueryBuilder union : unionQueries) {
+			oldOrderBy = union.orderBy;
+			oldSkip = union.skip;
+			oldTake = union.take;
+			
+			union.orderBy = new ArrayList<Order>();
+			union.skip = -1;
+			union.take = -1;
+			
+			ret.addAll(union.buildParameters());
+			
+			union.orderBy = oldOrderBy;
+			union.skip = oldSkip;
+			union.take = oldTake;
+		}
+		
+		for (Order o : orderBy) {
+			ret.addAll(o.buildParameters());
 		}
 		
 		preProcessDateValues(ret);
 		return ret;
+	}
+
+	private void buildSelectClauseParameters(List<Object> ret) {
+		for (Projection p : projections) {
+			ret.addAll(p.buildParameters());
+		}
+	}
+	
+	public String toDebugSqlString() {
+		List<Object> parameters = buildParameters();
+		String saida = build();
+
+		if (parameters != null) {
+			for (Object p : parameters) {
+				if (p == null)
+					saida = saida.replaceFirst("\\?", "NULL");
+				else
+					saida = saida.replaceFirst("\\?", escapeSQLString(Utils.toString(p)));
+			}
+		}
+		
+		return saida;
 	}
 
 	private void preProcessDateValues(List<Object> values) {
@@ -306,4 +479,25 @@ public class QueryBuilder {
 			index++;
 		}
 	}
+	
+	private String escapeSQLString(String sqlString) {
+		// Copied from Android source: DatabaseUtils.appendEscapedSQLString
+		StringBuilder sb = new StringBuilder();
+        sb.append('\'');
+        
+        if (sqlString.indexOf('\'') != -1) {
+            int length = sqlString.length();
+            for (int i = 0; i < length; i++) {
+                char c = sqlString.charAt(i);
+                if (c == '\'') {
+                    sb.append('\'');
+                }
+                sb.append(c);
+            }
+        } else
+            sb.append(sqlString);
+        
+        sb.append('\'');
+        return sb.toString();
+    }
 }

@@ -39,12 +39,20 @@ public abstract class From {
 		return innerJoin(From.table(table));
 	}
 	
+	public PartialJoin innerJoin(QueryBuilder subQuery) {
+		return innerJoin(From.subQuery(subQuery));
+	}
+	
 	public PartialJoin innerJoin(From table) {
 		return new PartialJoin(this, table, "INNER JOIN");
 	}
 	
 	public PartialJoin leftJoin(String table) {
 		return leftJoin(From.table(table));
+	}
+	
+	public PartialJoin leftJoin(QueryBuilder subQuery) {
+		return leftJoin(From.subQuery(subQuery));
 	}
 	
 	public PartialJoin leftJoin(From table) {

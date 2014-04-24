@@ -3,6 +3,7 @@ package com.reinaldoarrosi.android.querybuilder.sqlite.criteria;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.reinaldoarrosi.android.querybuilder.sqlite.projection.AliasedProjection;
 import com.reinaldoarrosi.android.querybuilder.sqlite.projection.Projection;
 
 public class InCriteria extends Criteria {
@@ -14,12 +15,18 @@ public class InCriteria extends Criteria {
 		this.projection = projection;
 		this.valuesList = values;
 		this.valuesArray = null;
+		
+		if(this.projection instanceof AliasedProjection)
+			this.projection = ((AliasedProjection)this.projection).removeAlias();
 	}
 	
 	public InCriteria(Projection projection, Object[] values) {
 		this.projection = projection;
 		this.valuesArray = values;
 		this.valuesList = null;
+		
+		if(this.projection instanceof AliasedProjection)
+			this.projection = ((AliasedProjection)this.projection).removeAlias();
 	}
 
 	@Override
