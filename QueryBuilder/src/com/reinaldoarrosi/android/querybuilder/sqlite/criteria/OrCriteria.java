@@ -7,7 +7,7 @@ public class OrCriteria extends Criteria {
 	private Criteria left;
 	private Criteria right;
 	
-	protected OrCriteria(Criteria left, Criteria right) {
+	public OrCriteria(Criteria left, Criteria right) {
 		this.left = left;
 		this.right = right;
 	}

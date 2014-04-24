@@ -8,7 +8,7 @@ import com.reinaldoarrosi.android.querybuilder.sqlite.QueryBuilder;
 public class SubQueryProjection extends Projection {
 	private QueryBuilder subQuery;
 	
-	protected SubQueryProjection(QueryBuilder subQuery) {
+	public SubQueryProjection(QueryBuilder subQuery) {
 		this.subQuery = subQuery;
 	}
 

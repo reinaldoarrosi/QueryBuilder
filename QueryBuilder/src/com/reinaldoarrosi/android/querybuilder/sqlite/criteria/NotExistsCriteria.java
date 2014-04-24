@@ -3,7 +3,7 @@ package com.reinaldoarrosi.android.querybuilder.sqlite.criteria;
 import com.reinaldoarrosi.android.querybuilder.sqlite.QueryBuilder;
 
 public class NotExistsCriteria extends ExistsCriteria {
-	protected NotExistsCriteria(QueryBuilder subQuery) {
+	public NotExistsCriteria(QueryBuilder subQuery) {
 		super(subQuery);
 	}
 	

@@ -7,7 +7,7 @@ public class AndCriteria extends Criteria {
 	private Criteria left;
 	private Criteria right;
 	
-	protected AndCriteria(Criteria left, Criteria right) {
+	public AndCriteria(Criteria left, Criteria right) {
 		this.left = left;
 		this.right = right;
 	}

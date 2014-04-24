@@ -7,7 +7,7 @@ import com.reinaldoarrosi.android.querybuilder.Utils;
 public class CastDateProjection extends Projection {
 	private Projection projection;
 	
-	protected CastDateProjection(Projection projection) {
+	public CastDateProjection(Projection projection) {
 		this.projection = projection;
 	}
 	

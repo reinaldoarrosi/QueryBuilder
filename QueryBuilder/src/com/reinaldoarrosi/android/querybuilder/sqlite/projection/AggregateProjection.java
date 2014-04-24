@@ -16,7 +16,7 @@ public class AggregateProjection extends Projection {
 	private Projection projection;
 	private int type;
 	
-	protected AggregateProjection(Projection projection, int type) {
+	public AggregateProjection(Projection projection, int type) {
 		this.projection = projection;
 		this.type = type;
 	}

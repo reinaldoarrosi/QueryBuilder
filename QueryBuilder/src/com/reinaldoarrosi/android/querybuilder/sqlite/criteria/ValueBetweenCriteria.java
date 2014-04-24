@@ -11,7 +11,7 @@ public class ValueBetweenCriteria extends Criteria {
 	private Projection projectionStart;
 	private Projection projectionEnd;
 	
-	protected ValueBetweenCriteria(Object value, Projection projectionStart, Projection projectionEnd) {
+	public ValueBetweenCriteria(Object value, Projection projectionStart, Projection projectionEnd) {
 		this.value = value;
 		this.projectionStart = projectionStart;
 		this.projectionEnd = projectionEnd;

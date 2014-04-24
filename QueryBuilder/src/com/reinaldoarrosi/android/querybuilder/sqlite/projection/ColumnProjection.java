@@ -8,7 +8,7 @@ public class ColumnProjection extends Projection {
 	private String table;
 	private String column;
 	
-	protected ColumnProjection(String table, String column) {
+	public ColumnProjection(String table, String column) {
 		this.table = table;
 		this.column = column;
 	}

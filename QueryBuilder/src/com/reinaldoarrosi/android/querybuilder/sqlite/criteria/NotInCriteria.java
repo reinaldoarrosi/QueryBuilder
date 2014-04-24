@@ -10,13 +10,13 @@ public class NotInCriteria extends Criteria {
 	private List<Object> valuesList;
 	private Object[] valuesArray;
 	
-	protected NotInCriteria(Projection projection, List<Object> values) {
+	public NotInCriteria(Projection projection, List<Object> values) {
 		this.projection = projection;
 		this.valuesList = values;
 		this.valuesArray = null;
 	}
 	
-	protected NotInCriteria(Projection projection, Object[] values) {
+	public NotInCriteria(Projection projection, Object[] values) {
 		this.projection = projection;
 		this.valuesArray = values;
 		this.valuesList = null;

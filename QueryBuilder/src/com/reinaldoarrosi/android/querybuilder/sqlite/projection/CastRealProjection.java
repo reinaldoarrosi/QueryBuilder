@@ -7,7 +7,7 @@ import com.reinaldoarrosi.android.querybuilder.Utils;
 public class CastRealProjection extends Projection {
 	private Projection projection;
 
-	protected CastRealProjection(Projection projection) {
+	public CastRealProjection(Projection projection) {
 		this.projection = projection;
 	}
 

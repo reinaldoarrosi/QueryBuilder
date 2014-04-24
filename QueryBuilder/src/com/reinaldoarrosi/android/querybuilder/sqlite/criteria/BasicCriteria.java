@@ -27,7 +27,7 @@ public class BasicCriteria extends Criteria {
 	private String operator;
 	private Object value;
 	
-	protected BasicCriteria(Projection projection, String operator, Object value) {
+	public BasicCriteria(Projection projection, String operator, Object value) {
 		this.projection = projection;
 		this.operator = operator;
 		this.value = value;

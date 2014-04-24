@@ -10,13 +10,13 @@ public class InCriteria extends Criteria {
 	private List<Object> valuesList;
 	private Object[] valuesArray;
 	
-	protected InCriteria(Projection projection, List<Object> values) {
+	public InCriteria(Projection projection, List<Object> values) {
 		this.projection = projection;
 		this.valuesList = values;
 		this.valuesArray = null;
 	}
 	
-	protected InCriteria(Projection projection, Object[] values) {
+	public InCriteria(Projection projection, Object[] values) {
 		this.projection = projection;
 		this.valuesArray = values;
 		this.valuesList = null;

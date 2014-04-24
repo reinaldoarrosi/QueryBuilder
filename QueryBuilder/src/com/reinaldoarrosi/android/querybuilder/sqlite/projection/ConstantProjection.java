@@ -8,7 +8,7 @@ import com.reinaldoarrosi.android.querybuilder.Utils;
 public class ConstantProjection extends Projection {
 	private Object constant;
 	
-	protected ConstantProjection(Object constant) {
+	public ConstantProjection(Object constant) {
 		this.constant = constant;
 	}
 

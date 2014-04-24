@@ -12,7 +12,7 @@ public class JoinFrom extends From {
 	private String joinType;
 	private Criteria criteria;
 	
-	protected JoinFrom(From left, From right, String joinType, Criteria criteria) {
+	public JoinFrom(From left, From right, String joinType, Criteria criteria) {
 		this.left = left;
 		this.right = right;
 		this.joinType = joinType;

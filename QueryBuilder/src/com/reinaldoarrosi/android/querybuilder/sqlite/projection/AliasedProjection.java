@@ -8,7 +8,7 @@ public class AliasedProjection extends Projection {
 	private Projection projection;
 	private String alias;
 	
-	protected AliasedProjection(Projection projection, String alias) {
+	public AliasedProjection(Projection projection, String alias) {
 		this.projection = projection;
 		this.alias = alias;
 	}

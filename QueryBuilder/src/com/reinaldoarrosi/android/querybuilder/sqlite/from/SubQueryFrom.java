@@ -8,7 +8,7 @@ import com.reinaldoarrosi.android.querybuilder.sqlite.QueryBuilder;
 public class SubQueryFrom extends AliasableFrom<SubQueryFrom> {
 	private QueryBuilder subQuery;
 
-	protected SubQueryFrom(QueryBuilder subQuery) {
+	public SubQueryFrom(QueryBuilder subQuery) {
 		this.subQuery = subQuery;
 	}
 	

@@ -8,7 +8,7 @@ import com.reinaldoarrosi.android.querybuilder.sqlite.QueryBuilder;
 public class ExistsCriteria extends Criteria {
 	private QueryBuilder subQuery;
 	
-	protected ExistsCriteria(QueryBuilder subQuery) {
+	public ExistsCriteria(QueryBuilder subQuery) {
 		this.subQuery = subQuery;
 	}
 

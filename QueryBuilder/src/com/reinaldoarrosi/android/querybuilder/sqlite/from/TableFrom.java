@@ -8,7 +8,7 @@ import com.reinaldoarrosi.android.querybuilder.Utils;
 public class TableFrom extends AliasableFrom<TableFrom> {
 	private String table;
 	
-	protected TableFrom(String table) {
+	public TableFrom(String table) {
 		this.table = table;
 	}
 
