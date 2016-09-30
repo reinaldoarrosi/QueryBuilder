@@ -372,6 +372,7 @@ public class QueryBuilder {
 
 	private void buildFromClause(StringBuilder sb) {
 		if(from != null) {
+			sb.append("FROM ");
 			sb.append(from.build());
 			sb.append(" ");
 		}
