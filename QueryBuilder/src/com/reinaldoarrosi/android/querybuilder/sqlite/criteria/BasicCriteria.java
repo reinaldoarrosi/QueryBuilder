@@ -37,9 +37,9 @@ public class BasicCriteria extends Criteria {
 		
 		if(value == null) {
 			if(Operators.IS_NULL.equals(operator) || Operators.EQUALS.equals(operator) || Operators.LIKE.equals(operator))
-				operator = Operators.IS_NULL;
+				this.operator = Operators.IS_NULL;
 			else
-				operator = Operators.IS_NOT_NULL;
+				this.operator = Operators.IS_NOT_NULL;
 		}
 	}
 
