@@ -33,7 +33,7 @@ public class OrCriteria extends Criteria {
 			ret.addAll(left.buildParameters());
 		
 		if(right != null)
-			ret.addAll(left.buildParameters());
+			ret.addAll(right.buildParameters());
 		
 		return ret;
 	}
