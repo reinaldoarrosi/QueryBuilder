@@ -46,6 +46,5 @@ proguard/
 *.iws
 .idea/
 
-# Gradle
+# Gradle build folder
 /build
-/.gradle
