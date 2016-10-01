@@ -8,6 +8,9 @@ buildscript {
     dependencies {
         // Android Gradle plugin
         classpath 'com.android.tools.build:gradle:2.1.2'
+
+        // Jacoco Test Coverage Plugin
+        classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
     }
 }
 
