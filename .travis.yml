@@ -1,0 +1,19 @@
+language: android
+jdk: oraclejdk8
+
+android:
+  components:
+    - android-23
+    - build-tools-23.0.1
+
+notifications:
+  email:
+    recipients:
+      - skrzynecki.krzysztof@gmail.com
+    on_success: never
+    on_failure: always
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.gradle
