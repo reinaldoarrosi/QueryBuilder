@@ -4,7 +4,7 @@ jdk: oraclejdk8
 android:
   components:
     - android-23
-    - build-tools-23.0.1
+    - build-tools-24.0.3
 
 notifications:
   email:
