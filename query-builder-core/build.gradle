@@ -1,27 +1,10 @@
-apply plugin: 'com.android.library'
-apply plugin: 'jacoco-android'
+apply plugin: 'java'
+apply plugin: 'jacoco'
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion '24.0.3'
-
-    defaultConfig {
-        versionName "0.1"
-        versionCode 1
-        minSdkVersion 14
+jacocoTestReport {
+    reports {
+        xml.enabled true
     }
-
-    buildTypes {
-        debug {
-            testCoverageEnabled true
-        }
-    }
-}
-
-jacocoAndroidUnitTestReport {
-    csv.enabled true
-    html.enabled true
-    xml.enabled true
 }
 
 dependencies {
