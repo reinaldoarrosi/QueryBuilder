@@ -18,6 +18,12 @@ android {
     }
 }
 
+jacocoAndroidUnitTestReport {
+    csv.enabled true
+    html.enabled true
+    xml.enabled true
+}
+
 dependencies {
     compile 'joda-time:joda-time:2.1'
 
