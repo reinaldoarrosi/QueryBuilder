@@ -1,0 +1,18 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        // Jacoco Test Coverage Plugin
+        classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}

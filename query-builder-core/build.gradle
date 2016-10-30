@@ -1,0 +1,14 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+dependencies {
+    compile 'joda-time:joda-time:2.1'
+
+    testCompile 'junit:junit:4.12'
+}
