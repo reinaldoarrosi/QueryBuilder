@@ -1,5 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'jacoco'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 jacocoTestReport {
     reports {
@@ -11,4 +14,54 @@ dependencies {
     compile 'joda-time:joda-time:2.1'
 
     testCompile 'junit:junit:4.12'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+	publications {
+		QueryBuilderPublication(MavenPublication) {
+			from components.java
+			groupId 'com.github.reinaldoarrosi'
+			artifactId 'query-builder'
+			version '0.1'
+			
+			artifact sourcesJar {
+				classifier "sources"
+			}
+			
+			artifact javadocJar {
+				classifier "javadoc"
+			}
+		}
+	}
+}
+
+// Bintray
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+	user = properties.getProperty('bintray.user')
+	key = properties.getProperty('bintray.apikey')
+	publications = ['QueryBuilderPublication']
+	pkg {
+		repo = 'maven'
+		name = 'query-builder'
+		version {
+			name = '0.1'
+			gpg {
+                sign = true
+                passphrase = properties.getProperty("bintray.gpg.password")
+            }
+		}
+	}
 }

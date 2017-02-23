@@ -1,5 +1,5 @@
 # QueryBuilder
-**THIS PROJECT SUFFERED A MAJOR REDESIGN FROM V1 to V2. IF YOU NEED THE OLD VERSION CHECK THE LABELS AND GRAB WHAT YOU NEED**
+**THIS PROJECT SUFFERED A MAJOR REDESIGN FROM V1 to V2. IF YOU NEED THE OLD VERSION CHECK THE TAG 1.0 AND GRAB WHAT YOU NEED**
 
 QueryBuilder is a fluent library for building SELECT statements for SQLite. It creates parameterized queries by default, but you can also get the query string without parameters by using the **toDebugSqlString** method.
 
@@ -16,11 +16,22 @@ By default, QueryBuilder assumes that dates are stored in the **yyyy-MM-dd** for
 
 ## Installing
 
-- Clone this repository
-- Import project into Eclipse
-- Export as .JAR
-- Add a reference to the exported jar and to joda-time.2.1.jar located in the libs folder
-- Have fun!
+###Maven
+
+```xml
+<dependency>
+  <groupId>com.github.reinaldoarrosi</groupId>
+  <artifactId>query-builder</artifactId>
+  <version>0.1</version>
+  <type>pom</type>
+</dependency>
+```
+
+###Gradle
+
+```groovy
+compile 'com.github.reinaldoarrosi:query-builder:0.1'
+```
 
 ## Usage
 ### Basic statement

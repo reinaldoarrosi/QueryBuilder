@@ -6,56 +6,13 @@ buildscript {
     }
 
     dependencies {
-        // Jacoco Test Coverage Plugin
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
+		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
     }
 }
-
-plugins {
-    id "com.jfrog.bintray" version "1.7"
-}
-
-group = 'com.github.reinaldoarrosi'
-version = '0.1'
 
 allprojects {
     repositories {
         jcenter()
     }
-	
-	apply plugin: 'maven'
-	apply plugin: 'maven-publish'
-	apply plugin: 'java'
-}
-
-publishing {
-	publications {
-		QueryBuilderPublication(MavenPublication) {
-			from components.java
-			groupId 'com.github.reinaldoarrosi'
-			artifactId 'query-builder'
-			version '0.1'
-		}
-	}
-}
-
-// Bintray
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-	user = properties.getProperty('bintray.user')
-	key = properties.getProperty('bintray.apikey')
-	publications = ['QueryBuilderPublication']
-	pkg {
-		repo = 'maven'
-		name = 'query-builder'
-		version {
-			name = '0.1'
-			gpg {
-                sign = true
-                passphrase = properties.getProperty("bintray.gpg.password")
-            }
-		}
-	}
 }
