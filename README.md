@@ -22,7 +22,7 @@ By default, QueryBuilder assumes that dates are stored in the **yyyy-MM-dd** for
 <dependency>
   <groupId>com.github.reinaldoarrosi</groupId>
   <artifactId>query-builder</artifactId>
-  <version>0.1</version>
+  <version>0.1.1</version>
   <type>pom</type>
 </dependency>
 ```
@@ -30,7 +30,7 @@ By default, QueryBuilder assumes that dates are stored in the **yyyy-MM-dd** for
 ###Gradle
 
 ```groovy
-compile 'com.github.reinaldoarrosi:query-builder:0.1'
+compile 'com.github.reinaldoarrosi:query-builder:0.1.1'
 ```
 
 ## Usage
