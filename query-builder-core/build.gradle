@@ -26,21 +26,44 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+def pomConfig = {
+    licenses {
+        license {
+            name "MIT License"
+            url "https://opensource.org/licenses/MIT"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            name "Reinaldo Arrosi"
+            email "rarrosi@gmail.com"
+        }
+    }
+	scm {
+		connection "scm:git:git://github.com/reinaldoarrosi/QueryBuilder.git"
+		developerConnection "scm:git:ssh://github.com:	reinaldoarrosi/QueryBuilder.git"
+		url "https://github.com/reinaldoarrosi/QueryBuilder/tree/master"
+	}
+}
+
 publishing {
 	publications {
 		QueryBuilderPublication(MavenPublication) {
 			from components.java
 			groupId 'com.github.reinaldoarrosi'
 			artifactId 'query-builder'
-			version '0.1'
+			version '0.1.1'
+			artifact sourcesJar
+			artifact javadocJar
 			
-			artifact sourcesJar {
-				classifier "sources"
-			}
-			
-			artifact javadocJar {
-				classifier "javadoc"
-			}
+			pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Fluent Android library to build SQLite select statements')
+                root.appendNode('name', 'com.github.reinaldoarrosi:query-builder')
+                root.appendNode('url', 'https://github.com/reinaldoarrosi/QueryBuilder')
+                root.children().last() + pomConfig
+            }
 		}
 	}
 }
@@ -57,7 +80,7 @@ bintray {
 		repo = 'maven'
 		name = 'query-builder'
 		version {
-			name = '0.1'
+			name = '0.1.1'
 			gpg {
                 sign = true
                 passphrase = properties.getProperty("bintray.gpg.password")
